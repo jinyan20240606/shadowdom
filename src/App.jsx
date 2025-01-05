@@ -1,38 +1,67 @@
 import "./App.css";
-import ShadowView from "./components/shaWrap";
-import { useState, useEffect, useRef } from "react";
-import adData from "./components/adData";
-import "./components/_loader111";
+// import Iframe from "./components/iframe";
+import Header from "./components/Header";
+import { useState, useLayoutEffect } from "react";
+import ReactDOM from "react-dom";
+import HTMLCode from "./components/htmlCode";
+import Frame from 'react-frame-component';
 
 function App() {
   const [htmlAd, setHtmlAd] = useState("");
-  const containerRef = useRef(null);
+  // const containerRef = useRef(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // 插入广告内容
-    setHtmlAd(`<style>.im-color{color:red}</style><span class="im-color">1111</span>`);
+    setHtmlAd(HTMLCode);
+    setContentDocument(HTMLCode);
   }, []);
 
-  const padding =
-    htmlAd?.filter?.((item) => item?.count > 0)?.length > 0
-      ? ""
-      : "pt-1px pb-1px";
+  const setContentDocument = (code) => {
+     const iframe = document.getElementById("my-iframe");
+    if (iframe && iframe.contentDocument) {
+      iframe.contentDocument.open();
+      iframe.contentDocument.write(code);
+      iframe.contentDocument.close();
+    }
+  }
+  const iframe1 = document.getElementById("my-iframe1");
+  const iframeBody = iframe1?.contentWindow?.document?.body;
 
   return (
     <div id="ad-container">
-      <span className="im-color">这是广告容器</span>
-      <ShadowView
-        htmlContent={htmlAd}
-        // styleContent={`*{color:red;}`}
+      <Header></Header>
+      <h2 className="im-color">这是iframe容器</h2>
+      <div>
+        <p>srcDoc方式</p>
+        <iframe srcDoc={htmlAd}></iframe>
+        {/* <p>contentDocument方式</p>
+        <iframe id="my-iframe"></iframe> */}
+        {/* <p>react-createPortal方式</p>
+        <iframe id="my-iframe1"></iframe> */}
+        {/* 正常的组件内容 */}
+      {/* {iframeBody && ReactDOM.createPortal(
+        <div>
+          <Header></Header>
+        <div dangerouslySetInnerHTML={{ __html: htmlAd }}></div>
+        </div>,
+        iframeBody
+      )}
+      <p>react-frame-component方式</p>
+      <Frame>
+      <Header></Header>
+        <div dangerouslySetInnerHTML={{ __html: htmlAd }}></div>
+      </Frame> */}
+      </div>
+
+      <button
+        onClick={() => {
+          console.log("iframe-重新加载src");
+          setHtmlAd((str) => str + new Date().getTime());
+          setContentDocument(htmlAd + new Date().getTime());
+        }}
       >
-        {/* <style>{`*{color:red;}`}</style> */}
-        <div
-          className="29"
-          ref={containerRef}
-          dangerouslySetInnerHTML={{ __html: htmlAd }}
-        >
-        </div>
-      </ShadowView>
+        刷新iframe
+      </button>
     </div>
   );
 }
